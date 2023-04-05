@@ -1,0 +1,35 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/crowdfunding.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.8;\n\n/**\n * @title FundMe\n * @author Jeevan Siddharth\n * @notice Sample contract\n **/\ncontract crowdfunding {\n    address public immutable owner;\n    address[] public funders;\n    mapping(address => uint256) public addresstoamtfunded;\n    uint256 public target;\n    uint256 public totalfundraised;\n    uint256 public moneyleft;\n    uint256 public capital;\n\n    uint256 public k;\n    uint256 public profitbuy;\n    uint256 public contractbalance;\n    uint256 public totalbuy;\n    uint256 public threshold;\n\n    uint256 public releaseamount;\n    uint256 public buythreshold;\n    uint256 public profitthreshold;\n    uint8 public releasefundcalled = 0;\n    bool istargetreached = false;\n\n    constructor(uint256 _target, uint256 _threshold, uint256 _profitthreshold) {\n        owner = msg.sender;\n        target = _target;\n        threshold = _threshold;\n        releaseamount = (target * 1000) / 10000; // releaseamount is 10% of target\n        // converting 10% to basis poimts as solidity wont allow simply dividing by 10\n        profitthreshold = _profitthreshold;\n        capital = ((target * 2500) / 10000); // capital is 25% of target\n    }\n\n    function fund() public payable {\n        address[] memory funderarray = funders;\n        int f = 0;\n        require(msg.value >= 10000000000000, \"Insufficient Amount\");\n        totalfundraised = totalfundraised + msg.value;\n        for (uint256 i = 0; i < funderarray.length; i++) {\n            if (msg.sender == funderarray[i]) {\n                uint256 m = addresstoamtfunded[funderarray[i]];\n                addresstoamtfunded[funderarray[i]] = m + msg.value;\n                f = 1;\n            }\n        }\n        if (f == 0) {\n            funders.push(msg.sender);\n            addresstoamtfunded[msg.sender] = msg.value;\n        }\n        if (totalfundraised >= target && istargetreached == false) {\n            releaseCapital();\n            getprofitshare();\n            istargetreached = true;\n            // moneyleft = totalfundraised;\n        }\n    }\n\n    function getprofitshare() public {}\n\n    function releaseCapital() public {\n        (bool success, bytes memory callreturned) = payable(owner).call{\n            value: capital\n        }(\"\");\n        require(success, \"Failed\");\n        //    moneyleft=moneyleft-capital;\n    }\n\n    function buy() public payable {\n        // profit == some amount release profit to funder and owner\n        // profit == certain threshold achieved then release fund to owner to refill stocks\n        //address of buyer dont care\n        // if total buy == threshold => release to owner\n        //  if profit buy == profit treshold divide the profits\n        totalbuy += msg.value;\n        profitbuy = address(this).balance;\n        if (totalbuy >= threshold && releasefundcalled < 8) {\n            releasefund();\n            releasefundcalled++;\n            totalbuy = 0;\n            // threshold = threshold + threshold;\n        }\n        if (profitbuy >= profitthreshold) {\n            releaseprofitfunds();\n            profitbuy = 0;\n        }\n    }\n\n    function viewbalance() public view returns (uint256) {\n        return address(this).balance;\n    }\n\n    function releasefund() public {\n        (bool success, ) = payable(owner).call{value: releaseamount}(\"\");\n        require(success, \"Failed\");\n\n        // k++;\n    }\n\n    // function totalbuy() public{\n    //     (bool success,bytes memory callreturned)=payable(owner).call{value:releaseamount}(\"\");\n    //     require(success,\"Failed\");\n    // }\n    function releaseprofitfunds() public {\n        for (uint256 i = 0; i < funders.length; i++) {\n            address f = funders[i];\n            (bool success, bytes memory callreturned) = payable(f).call{\n                value: 10000000000000000\n            }(\"\");\n            require(success, \"Failed\");\n        }\n    }\n\n    receive() external payable {\n        fund();\n    }\n\n    fallback() external payable {\n        fund();\n    }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
