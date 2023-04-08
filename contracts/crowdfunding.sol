@@ -41,7 +41,7 @@ contract crowdfunding {
     function fund() public payable {
         address[] memory funderarray = funders;
         int f = 0;
-        require(msg.value >= 10000000000000, "Insufficient Amount");
+        require(msg.value >= 10000000, "Insufficient Amount");
         totalfundraised = totalfundraised + msg.value;
         for (uint256 i = 0; i < funderarray.length; i++) {
             if (msg.sender == funderarray[i]) {

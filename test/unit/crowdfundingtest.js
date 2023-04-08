@@ -35,5 +35,15 @@ describe("crowdfunding", function () {
         startingbalance.toString()
       );
     });
+    it.only("updates the value of istargetreached", async function () {
+      let m1 = await crowdFunding.istargetreached();
+      assert.equal(m1, false);
+
+      let res = await crowdFunding.fund({ value: 10000000000000 });
+      let m = await crowdFunding.istargetreached();
+      await res.wait(1);
+      assert.equal(m, true);
+    });
+    
   });
 });

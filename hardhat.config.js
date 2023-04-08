@@ -1,6 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("hardhat-gas-reporter");
-// require("@nomiclabs/hardhat-etherscan");
+require("@nomiclabs/hardhat-etherscan");
 require("dotenv").config();
 require("solidity-coverage");
 require("hardhat-deploy");
@@ -20,10 +20,14 @@ module.exports = {
     },
     goerli: {
       url: GOERLI_RPC_URL,
-      accounts: [
-        "52563bb2cf2602cf4a4e2cbc5c6079c8d29d780d8a3b92c6ad26f20e91ceb5ad",
-      ],
+      accounts: [PRIVATE_KEY],
       chainId: 5,
+      blockConfirmations: 3,
+    },
+    sepolia: {
+      url: GOERLI_RPC_URL,
+      accounts: [PRIVATE_KEY],
+      chainId: 11155111,
       blockConfirmations: 3,
     },
   },
